@@ -9,7 +9,7 @@ import "./PriceConverter.sol";
 error FundMe__NotOwner();
 
 /**@title A sample Funding Contract
- * @author Patrick Collins
+ * @author Ashish Pal
  * @notice This contract is for creating a sample funding contract
  * @dev This implements price feeds as our library
  */
@@ -20,7 +20,7 @@ contract FundMe {
     // State variables
     uint256 public constant MINIMUM_USD = 50 * 10 ** 18;
     address private immutable i_owner;
-    address[] public s_funders;
+    address[] private s_funders;
     mapping(address => uint256) private s_addressToAmountFunded;
     AggregatorV3Interface private s_priceFeed;
 
@@ -90,6 +90,16 @@ contract FundMe {
         // payable(msg.sender).transfer(address(this).balance);
         (bool success, ) = i_owner.call{value: address(this).balance}("");
         require(success);
+    }
+
+    // * receive function
+    receive() external payable {}
+
+    // * fallback function
+    fallback() external payable {
+        if (msg.value > 100) {
+            fund();
+        }
     }
 
     /** @notice Gets the amount that an address has funded
